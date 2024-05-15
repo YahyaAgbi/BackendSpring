@@ -41,10 +41,11 @@ steps:
 # Publish build artifacts (logs)
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: 'robocopy_backend.log'
+    PathtoPublish: '$(Build.SourcesDirectory)\robocopy_backend.log'
     ArtifactName: 'deployment_backend_logs'
     publishLocation: 'container'
   condition: succeededOrFailed()
+
 
 # Cleanup build artifacts
 - script: |
