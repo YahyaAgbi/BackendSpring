@@ -1,0 +1,53 @@
+trigger:
+  - main
+
+pool:
+  name: Azure Pipelines
+  demands:
+    - agent.name -equals Hosted Agent
+
+variables:
+  buildDirectory: 'target'
+
+steps:
+- checkout: self
+
+# Check if Maven is installed and install if necessary
+- script: |
+    mvn -version || (
+      echo "Maven is not installed. Installing Maven..."
+      choco install maven
+    )
+  displayName: 'Check and Install Maven'
+
+# Build the Spring Boot application with Maven
+- script: |
+    echo "Building Spring Boot application..."
+    mvn -f "$(Build.SourcesDirectory)/pom.xml" clean package -DskipTests
+  displayName: 'Build Spring Boot application with Maven'
+
+# Deploy the built application to the production directory using robocopy
+- script: |
+    robocopy "$(Build.SourcesDirectory)/$(buildDirectory)" "$(productionDirectory)" /MIR /NP /LOG:robocopy_backend.log
+    if ERRORLEVEL 1 (
+        echo "Deployment failed with error level: %ERRORLEVEL%"
+        exit 1
+    ) else (
+        echo "Deployment successful"
+    )
+  displayName: 'Deploy application to production directory'
+  continueOnError: false
+
+# Publish build artifacts (logs)
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'robocopy_backend.log'
+    ArtifactName: 'deployment_backend_logs'
+    publishLocation: 'container'
+  condition: succeededOrFailed()
+
+# Cleanup build artifacts
+- script: |
+    echo "Cleaning up build artifacts..."
+    rmdir /S /Q "$(Build.SourcesDirectory)/$(buildDirectory)"
+  displayName: 'Post-build cleanup'
