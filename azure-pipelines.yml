@@ -20,10 +20,10 @@ steps:
     )
   displayName: 'Check and Install Maven'
 
-# Build the Spring Boot application with Maven
 - script: |
     echo "Building Spring Boot application..."
-    mvn -f "$(MyFit)/pom.xml" clean package -DskipTests
+    cd "$(Build.SourcesDirectory)/MyFit"
+    mvn clean package -DskipTests
   displayName: 'Build Spring Boot application with Maven'
 
 # Deploy the built application to the production directory using robocopy
