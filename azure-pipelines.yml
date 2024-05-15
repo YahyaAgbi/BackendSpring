@@ -22,18 +22,10 @@ steps:
 
 # Build the Spring Boot application with Maven
 - script: |
-    echo "Current directory: $(pwd)"
-    echo "Contents of $(Build.SourcesDirectory):"
-    ls -la "$(Build.SourcesDirectory)"
-    echo "Contents of $(Build.SourcesDirectory)/MyFit:"
-    ls -la "$(Build.SourcesDirectory)/MyFit"
-    echo "Building Spring Boot application..."
-    cd "$(Build.SourcesDirectory)"
-    cd MyFit || { echo "Failed to change directory to MyFit"; exit 1; }
-    echo "Current directory: $(pwd)"
-    echo "Running Maven..."
+    cd "$(Build.SourcesDirectory)/MyFit"
     mvn clean package -DskipTests
   displayName: 'Build Spring Boot application with Maven'
+
 
 
 # Deploy the built application to the production directory using robocopy
